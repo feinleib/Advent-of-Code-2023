@@ -72,12 +72,13 @@ min_cubes <- function(game) {
        blue = count_cubes(game, "blue"))
 }
 
-valid_game <- function(game_cubes) {
+valid_game <- function(game) {
+  game_cubes <- min_cubes(game)
   all(game_cubes$red <= 12, game_cubes$green <= 13, game_cubes$blue <= 14)
 }
 
 sum_valid_games <- function(games) {
-  sapply(games, function(.game) valid_game(min_cubes(.game))) |> 
+  sapply(games, valid_game) |> 
     which() |> 
     sum()
 }
@@ -116,3 +117,22 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 The **power** of a set of cubes is equal to the numbers of red, green, and blue cubes multiplied together. The power of the minimum set of cubes in game 1 is `48`. In games 2-5 it was `12`, `1560`, `630`, and `36`, respectively. Adding up these five powers produces the sum **`2286`**.
 
 For each game, find the minimum set of cubes that must have been present. **What is the sum of the power of these sets?**
+
+## Solution
+
+```{r part 2 solution function}
+game_power <- function(game) {
+  prod(unlist(min_cubes(game)))
+}
+
+sum_game_powers <- function(games) {
+  sum(sapply(games, game_power))
+}
+```
+
+### Part 2 Answers
+```{r part 2 answers}
+sum_game_powers(example_games)
+sum_game_powers(games)
+```
+

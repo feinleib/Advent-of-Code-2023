@@ -494,6 +494,23 @@ sum <strong><code>2286</code></strong>.</p>
 present. <strong>What is the sum of the power of these
 sets?</strong></p>
 </div>
+<div id="solution-1" class="section level2">
+<h2>Solution</h2>
+<pre class="r"><code>game_power &lt;- function(game) {
+  prod(unlist(min_cubes(game)))
+}
+
+sum_game_powers &lt;- function(games) {
+  sum(sapply(games, game_power))
+}</code></pre>
+<div id="part-2-answers" class="section level3">
+<h3>Part 2 Answers</h3>
+<pre class="r"><code>sum_game_powers(example_games)</code></pre>
+<pre><code>## [1] 2286</code></pre>
+<pre class="r"><code>sum_game_powers(games)</code></pre>
+<pre><code>## [1] 84911</code></pre>
+</div>
+</div>
 </div>
 
 
