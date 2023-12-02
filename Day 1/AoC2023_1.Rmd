@@ -3,11 +3,7 @@ title: "Day 1: Trebuchet?!"
 subtitle: Advent of Code 2023
 author: Max Feinleib
 date: December 1, 2023
-output:
-  html_document:
-    df_print: paged
-editor_options:
-  chunk_output_type: console
+output: html_document
 ---
 
 # Part 1
