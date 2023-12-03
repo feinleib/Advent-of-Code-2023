@@ -436,12 +436,13 @@ min_cubes &lt;- function(game) {
        blue = count_cubes(game, &quot;blue&quot;))
 }
 
-valid_game &lt;- function(game_cubes) {
+valid_game &lt;- function(game) {
+  game_cubes &lt;- min_cubes(game)
   all(game_cubes$red &lt;= 12, game_cubes$green &lt;= 13, game_cubes$blue &lt;= 14)
 }
 
 sum_valid_games &lt;- function(games) {
-  sapply(games, function(.game) valid_game(min_cubes(.game))) |&gt; 
+  sapply(games, valid_game) |&gt; 
     which() |&gt; 
     sum()
 }</code></pre>
