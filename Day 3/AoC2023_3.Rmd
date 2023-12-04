@@ -40,3 +40,79 @@ Here is an example engine schematic:
 In this schematic, two numbers are **not** part numbers because they are not adjacent to a symbol: `114` (top right) and `58` (middle right). Every other number is adjacent to a symbol and so is a part number; their sum is **`4361`**.
 
 Of course, the actual engine schematic is much larger. **What is the sum of all of the part numbers in the engine schematic?**
+
+## Solution
+
+```{r packages, message=FALSE}
+# packages used
+library(dplyr)
+library(readr)
+library(stringr)
+```
+
+```{r part 1 data}
+# part 1 data
+engine_schematic <- read_lines("engine_schematic.txt")
+ex_schematic <- c("467..114..", 
+                  "...*......", 
+                  "..35..633.", 
+                  "......#...", 
+                  "617*......", 
+                  ".....+.58.", 
+                  "..592.....",
+                  "......755.",
+                  "...$.*....",
+                  ".664.598..")
+```
+
+```{r part 1 solution}
+# part 1 solution function
+
+df_all <- function(schematic, pattern) {
+  start_end_matrices <- str_locate_all(schematic, pattern)
+  
+  locs_df <- lapply(seq_along(start_end_matrices), function(row_num) {
+    tibble(row = rep(row_num, nrow(start_end_matrices[[row_num]])),
+           start = start_end_matrices[[row_num]][, 1],
+           end = start_end_matrices[[row_num]][, 2])
+  }) %>% 
+    bind_rows()
+  
+  if (pattern == "[:digit:]+") {
+    locs_df <- mutate_numbers(locs_df, schematic, pattern)
+  }
+  
+  locs_df
+}
+
+mutate_numbers <- function(df, schematic, pattern) {
+  df %>% 
+    mutate(start = start - 1,
+           end = end + 1,
+           min_row = row - 1,
+           max_row = row + 1,
+           number = schematic %>% 
+             str_extract_all(pattern) %>% 
+             unlist() %>% 
+             as.integer())
+}
+
+sum_part_numbers <- function(schematic) {
+  numbers <- df_all(schematic, pattern = "[:digit:]+")
+  symbols <- df_all(schematic, pattern = "[^\\.|[:digit:]]")
+  
+  numbers %>% 
+    semi_join(symbols, by = join_by(between(y$start,
+                                            x$start, x$end),
+                                    between(y$row,
+                                            x$min_row, x$max_row))) %>% 
+    pull(number) %>% 
+    sum()
+}
+```
+
+### Part 1 Answers
+```{r part 1 answers}
+sum_part_numbers(ex_schematic)
+sum_part_numbers(engine_schematic)
+```
