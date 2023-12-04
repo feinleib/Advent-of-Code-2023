@@ -68,7 +68,12 @@ ex_schematic <- c("467..114..",
 ```{r part 1 solution}
 # part 1 solution function
 
-df_all <- function(schematic, pattern) {
+df_all <- function(schematic, type) {
+  pattern <- case_match(type,
+                        "number" ~ "[:digit:]+",
+                        "symbol" ~ "[^\\.|[:digit:]]",
+                        "gear" ~ "\\*")
+  
   start_end_matrices <- str_locate_all(schematic, pattern)
   
   locs_df <- lapply(seq_along(start_end_matrices), function(row_num) {
@@ -78,7 +83,7 @@ df_all <- function(schematic, pattern) {
   }) %>% 
     bind_rows()
   
-  if (pattern == "[:digit:]+") {
+  if (type == "number") {
     locs_df <- mutate_numbers(locs_df, schematic, pattern)
   }
   
@@ -98,11 +103,11 @@ mutate_numbers <- function(df, schematic, pattern) {
 }
 
 sum_part_numbers <- function(schematic) {
-  numbers <- df_all(schematic, pattern = "[:digit:]+")
-  symbols <- df_all(schematic, pattern = "[^\\.|[:digit:]]")
+  numbers <- df_all(schematic, type = "number")
+  symbols <- df_all(schematic, type = "symbol")
   
   numbers %>% 
-    semi_join(symbols, by = join_by(between(y$start,
+    inner_join(symbols, by = join_by(between(y$start,
                                             x$start, x$end),
                                     between(y$row,
                                             x$min_row, x$max_row))) %>% 
@@ -151,3 +156,29 @@ In this schematic, there are **two** gears. The first is in the top left; it has
 **What is the sum of all of the gear ratios in your engine schematic?**
 
 ## Solution
+
+```{r part 2 solution}
+sum_gear_ratios <- function(schematic) {
+  numbers <- df_all(schematic, "number")
+  gears <- df_all(schematic, "gear")
+  
+  numbers %>% 
+    inner_join(gears, by = join_by(between(y$start,
+                                            x$start, x$end),
+                                    between(y$row,
+                                            x$min_row, x$max_row))) %>% 
+    group_by(row.y, start.y, end.y) %>% 
+    summarize(size = n(),
+              gear_ratio = prod(number),
+              .groups = "drop") %>% 
+    filter(size == 2) %>% 
+    pull(gear_ratio) %>% 
+    sum()
+}
+```
+
+### Part 2 Answers
+```{r part 2 answers}
+sum_gear_ratios(ex_schematic)
+sum_gear_ratios(engine_schematic)
+```

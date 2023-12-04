@@ -423,7 +423,12 @@ ex_schematic &lt;- c(&quot;467..114..&quot;,
                   &quot;.664.598..&quot;)</code></pre>
 <pre class="r"><code># part 1 solution function
 
-df_all &lt;- function(schematic, pattern) {
+df_all &lt;- function(schematic, type) {
+  pattern &lt;- case_match(type,
+                        &quot;number&quot; ~ &quot;[:digit:]+&quot;,
+                        &quot;symbol&quot; ~ &quot;[^\\.|[:digit:]]&quot;,
+                        &quot;gear&quot; ~ &quot;\\*&quot;)
+  
   start_end_matrices &lt;- str_locate_all(schematic, pattern)
   
   locs_df &lt;- lapply(seq_along(start_end_matrices), function(row_num) {
@@ -433,7 +438,7 @@ df_all &lt;- function(schematic, pattern) {
   }) %&gt;% 
     bind_rows()
   
-  if (pattern == &quot;[:digit:]+&quot;) {
+  if (type == &quot;number&quot;) {
     locs_df &lt;- mutate_numbers(locs_df, schematic, pattern)
   }
   
@@ -453,11 +458,11 @@ mutate_numbers &lt;- function(df, schematic, pattern) {
 }
 
 sum_part_numbers &lt;- function(schematic) {
-  numbers &lt;- df_all(schematic, pattern = &quot;[:digit:]+&quot;)
-  symbols &lt;- df_all(schematic, pattern = &quot;[^\\.|[:digit:]]&quot;)
+  numbers &lt;- df_all(schematic, type = &quot;number&quot;)
+  symbols &lt;- df_all(schematic, type = &quot;symbol&quot;)
   
   numbers %&gt;% 
-    semi_join(symbols, by = join_by(between(y$start,
+    inner_join(symbols, by = join_by(between(y$start,
                                             x$start, x$end),
                                     between(y$row,
                                             x$min_row, x$max_row))) %&gt;% 
@@ -518,6 +523,30 @@ schematic?</strong></p>
 </div>
 <div id="solution-1" class="section level2">
 <h2>Solution</h2>
+<pre class="r"><code>sum_gear_ratios &lt;- function(schematic) {
+  numbers &lt;- df_all(schematic, &quot;number&quot;)
+  gears &lt;- df_all(schematic, &quot;gear&quot;)
+  
+  numbers %&gt;% 
+    inner_join(gears, by = join_by(between(y$start,
+                                            x$start, x$end),
+                                    between(y$row,
+                                            x$min_row, x$max_row))) %&gt;% 
+    group_by(row.y, start.y, end.y) %&gt;% 
+    summarize(size = n(),
+              gear_ratio = prod(number),
+              .groups = &quot;drop&quot;) %&gt;% 
+    filter(size == 2) %&gt;% 
+    pull(gear_ratio) %&gt;% 
+    sum()
+}</code></pre>
+<div id="part-2-answers" class="section level3">
+<h3>Part 2 Answers</h3>
+<pre class="r"><code>sum_gear_ratios(ex_schematic)</code></pre>
+<pre><code>## [1] 467835</code></pre>
+<pre class="r"><code>sum_gear_ratios(engine_schematic)</code></pre>
+<pre><code>## [1] 75847567</code></pre>
+</div>
 </div>
 </div>
 
