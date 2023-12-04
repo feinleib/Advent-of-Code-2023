@@ -1,0 +1,49 @@
+---
+title: ""
+subtitle: Advent of Code 2023
+author: Max Feinleib
+date: December *, 2023
+output: html_document
+---
+
+# Part 1
+
+## Problem
+
+## Solution
+
+```{r packages}
+
+```
+
+```{r part 1 data}
+
+```
+
+```{r part 1 solution}
+
+```
+
+### Part 1 Answers
+```{r part 1 answers}
+
+```
+
+# Part 2
+
+## Problem
+
+## Solution
+
+```{r part 2 data}
+
+```
+
+```{r part 2 solution}
+
+```
+
+### Part 2 Answers
+```{r part 2 answers}
+
+```
